@@ -9,7 +9,7 @@ void main() {
   runApp(MaterialApp(
     title: 'Welcome to Flutter',
     theme: new ThemeData(
-      primaryColor: Colors.white,
+      primaryColor: Colors.black,
     ),
     home: HomePage(), // becomes the route named '/'
     routes: <String, WidgetBuilder> {
