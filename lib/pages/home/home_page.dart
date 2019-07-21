@@ -17,7 +17,29 @@ class _HomePageState extends State<HomePage> {
           icon: new Image.asset('assets/voice_icon.png'),
           onPressed: _onPressTape,
         ),
-        title: new Text('home page'),
+        title: new Container(
+          child: new Center(
+            child: new Text(
+              '搜索音乐、歌词、电台',
+              textAlign: TextAlign.center,
+              style: new TextStyle(
+                color: Colors.grey[400],
+                letterSpacing: 2,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          height: 30,
+          // width: MediaQuery.of(context).size.width,
+          decoration: new BoxDecoration(
+            color: Colors.white,
+            borderRadius: new BorderRadius.all(
+              const Radius.circular(6.0),
+            ), 
+          ),
+        ),
+        titleSpacing: 0,
+        centerTitle: true,
         actions: <Widget>[
           new IconButton(
             icon: new Image.asset('assets/dance_bar_icon.png'),
