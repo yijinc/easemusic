@@ -38,23 +38,51 @@ class _PlayerPageState extends State<PlayerPage> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Column(
+              child: Stack(
                 children: <Widget>[
-                  Container(
-                    child: Transform(
-                      child: Container(
-                        child: Image.asset('assets/player_needle.png'),
+                  // player disc
+                  Positioned(
+                    child: Container(
+                      child: Transform(
+                        child: Container(
+                          child: Image.asset('assets/player_disc.png'),
+                        ),
+                        transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
+                        alignment: Alignment.center,
                       ),
-                      // pause: -30 playing: 0
-                      transform: Matrix4.identity()..rotateZ( -30 * 3.1415927 / 180),
-                      origin: Offset(15, 13),
+                      // color: Colors.red,
+                      height: 261,
+                      width: 261,
                     ),
-                    // color: Colors.white,
+                    top: 100,
+                    width: 261,
+                    height: 261,
+                  ),
+
+                  // player needle
+                  Positioned(
+                    child: GestureDetector(
+                      child: Container(
+                        child: Transform(
+                          child: Container(
+                            child: Image.asset('assets/player_needle.png'),
+                          ),
+                          // pause: -30 playing: 0
+                          transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
+                          origin: Offset(15, 13),
+                        ),
+                        // color: Colors.white,
+                        height: 134,
+                        padding: EdgeInsets.only(left: 62),
+                      ),
+                      onTap: _toggleShowLyric,
+                    ),
+                    top: 20,
                     height: 134,
-                    padding: EdgeInsets.only(left: 62),
                   ),
                   
                 ],
+                alignment: Alignment.topCenter,
               ),
             ),
             Container(
@@ -96,6 +124,10 @@ class _PlayerPageState extends State<PlayerPage> {
 
   void _goSingerPage () {
 
+  }
+
+  void _toggleShowLyric () {
+    print('切换歌词');
   }
 
 }
