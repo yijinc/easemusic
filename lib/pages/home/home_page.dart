@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: _navigatePlayer
           ),
         ],
-        backgroundColor: Colors.black,
+        // backgroundColor: Colors.black,
       ),
       body: new Column(
         children: [
