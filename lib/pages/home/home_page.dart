@@ -51,8 +51,64 @@ class _HomePageState extends State<HomePage> {
         ],
         backgroundColor: Colors.black,
       ),
-      body: new Center(
-        child: new Text('homea Page'),
+      body: new Column(
+        children: [
+          new Row(),
+          new Image.asset('assets/banner.png'),
+          new Container(
+            child: new Row(
+              children: <Widget>[
+                new GestureDetector(
+                  child: new Column(
+                    children: <Widget>[
+                      new Image.asset('assets/headset.png'),
+                      new Text(
+                        '私人FM',
+                      )
+                    ],
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  onTap: _navigateSearch,
+                ),
+                new GestureDetector(
+                  child: new Column(
+                    children: <Widget>[
+                      new Stack(
+                        children: <Widget>[
+                          Image.asset('assets/calendar.png'),
+                        ],
+                      ),
+                      new Text(
+                        '每日推荐',
+                      )
+                    ],
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  onTap: _navigateSearch,
+                ),
+                new GestureDetector(
+                  child: new Column(
+                    children: <Widget>[
+                      new Image.asset('assets/hot.png'),
+                      new Text(
+                        '新歌榜',
+                      )
+                    ],
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  onTap: _navigateSearch,
+                ),
+              ],
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            ),
+            padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
+            height: 126,
+          ),
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
       ),
     );
   }
