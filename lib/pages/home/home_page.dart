@@ -58,49 +58,9 @@ class _HomePageState extends State<HomePage> {
           new Container(
             child: new Row(
               children: <Widget>[
-                new GestureDetector(
-                  child: new Column(
-                    children: <Widget>[
-                      new Image.asset('assets/headset.png'),
-                      new Text(
-                        '私人FM',
-                      )
-                    ],
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
-                  onTap: _navigateSearch,
-                ),
-                new GestureDetector(
-                  child: new Column(
-                    children: <Widget>[
-                      new Stack(
-                        children: <Widget>[
-                          Image.asset('assets/calendar.png'),
-                        ],
-                      ),
-                      new Text(
-                        '每日推荐',
-                      )
-                    ],
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
-                  onTap: _navigateSearch,
-                ),
-                new GestureDetector(
-                  child: new Column(
-                    children: <Widget>[
-                      new Image.asset('assets/hot.png'),
-                      new Text(
-                        '新歌榜',
-                      )
-                    ],
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
-                  onTap: _navigateSearch,
-                ),
+                _buildMenu('assets/headset.png', '私人FM'),
+                _buildMenu('assets/calendar.png', '每日推荐'),
+                _buildMenu('assets/hot.png', '新歌榜'),
               ],
               mainAxisAlignment: MainAxisAlignment.spaceAround,
             ),
@@ -111,6 +71,53 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
       ),
     );
+  }
+
+
+  // 私人FM / 每日推荐 / 新歌榜 菜单
+  Widget _buildMenu(String imgSrc, String title) {
+    if (title=='每日推荐') {
+      var today = new DateTime.now();
+      return new GestureDetector(
+        child: new Column(
+          children: <Widget>[
+            new Stack(
+              children: <Widget>[
+                Image.asset('assets/calendar.png'),
+                new Positioned(
+                  child: new Center(
+                    child: Text('${today.day}'),
+                  ),
+                  width: 42,
+                  height: 42,
+                )
+              ],
+            ),
+            new Text(
+              '每日推荐',
+            )
+          ],
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+        onTap: _navigateSearch,
+      );
+    } else {
+      return new GestureDetector(
+        child: new Column(
+          children: <Widget>[
+            new Image.asset(imgSrc),
+            new Text(
+              title,
+            )
+          ],
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+        onTap: _navigateSearch,
+      );
+    }
+
   }
 
   void _navigatePlayer () {
