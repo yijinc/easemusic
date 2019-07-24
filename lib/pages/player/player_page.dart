@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'albumCover.dart' show AlbumCover;
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -6,6 +7,14 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
+
+  final music = const {
+    'title': '好吗今天',
+    'album': {
+      'coverImageUrl':  'http://p2.music.126.net/tNvWcu3P_7qia_Cep6S0aA==/109951164138999622.jpg?param=130y130',
+      'name': '好吗今天',
+    }
+  };
 
   bool _isPlaying = false;
   bool _isFavorited = true;
@@ -53,52 +62,7 @@ class _PlayerPageState extends State<PlayerPage> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Stack(
-                children: <Widget>[
-                  // player disc
-                  Positioned(
-                    child: Container(
-                      child: Transform(
-                        child: Container(
-                          child: Image.asset('assets/player_disc.png'),
-                        ),
-                        transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
-                        alignment: Alignment.center,
-                      ),
-                      // color: Colors.red,
-                      height: 261,
-                      width: 261,
-                    ),
-                    top: 100,
-                    width: 261,
-                    height: 261,
-                  ),
-
-                  // player needle
-                  Positioned(
-                    child: GestureDetector(
-                      child: Container(
-                        child: Transform(
-                          child: Container(
-                            child: Image.asset('assets/player_needle.png'),
-                          ),
-                          // pause: -30 playing: 0
-                          transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
-                          origin: Offset(15, 13),
-                        ),
-                        // color: Colors.white,
-                        height: 134,
-                        padding: EdgeInsets.only(left: 62),
-                      ),
-                      onTap: _toggleShowLyric,
-                    ),
-                    top: 20,
-                    height: 134,
-                  ),
-                  
-                ],
-                alignment: Alignment.topCenter,
-              ),
+              child: AlbumCover(music: music)
             ),
             Container(
               child: Row(
