@@ -7,6 +7,21 @@ class PlayerPage extends StatefulWidget {
 
 class _PlayerPageState extends State<PlayerPage> {
 
+  bool _isPlaying = false;
+  bool _isFavorited = true;
+
+  void _togglePlay() {
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+  }
+
+  void _toggleFavorite() {
+    setState(() {
+      _isFavorited = !_isFavorited;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold (
@@ -88,7 +103,7 @@ class _PlayerPageState extends State<PlayerPage> {
             Container(
               child: Row(
                 children: <Widget>[
-                  IconButton(color: Colors.white, icon: Icon(Icons.favorite), onPressed: _share,),
+                  IconButton(color: _isFavorited? Colors.red : Colors.white, icon: Icon(_isFavorited? Icons.favorite : Icons.favorite_border), onPressed: _toggleFavorite,),
                   IconButton(color: Colors.white, icon: Icon(Icons.save_alt), onPressed: _share,),
                   IconButton(color: Colors.white, icon: Icon(Icons.chat), onPressed: _share,),
                   IconButton(color: Colors.white, icon: Icon(Icons.reorder), onPressed: _share,),
@@ -103,7 +118,7 @@ class _PlayerPageState extends State<PlayerPage> {
                 children: <Widget>[
                   IconButton(color: Colors.white, icon: Icon(Icons.loop), onPressed: _share,),
                   IconButton(color: Colors.white, icon: Icon(Icons.skip_previous), onPressed: _share,),
-                  IconButton(color: Colors.white, icon: Icon(Icons.play_arrow), onPressed: _share, iconSize: 72,),
+                  IconButton(color: Colors.white, icon: Icon(_isPlaying? Icons.pause_circle_outline : Icons.play_circle_outline), onPressed: _togglePlay, iconSize: 72,),
                   IconButton(color: Colors.white, icon: Icon(Icons.skip_next), onPressed: _share,),
                   IconButton(color: Colors.white, icon: Icon(Icons.queue_music), onPressed: _share,),
                 ],
