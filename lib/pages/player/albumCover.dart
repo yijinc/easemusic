@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class AlbumCover extends StatefulWidget {
   
@@ -14,18 +15,29 @@ class _AlbumCoverState extends State<AlbumCover> {
 
   bool _isPlaying = false;
 
-  // 上一首音乐 封面
-  Map _previous;
-
-  // 下一首音乐 封面
-  Map _next;
+  Map _previous;  // 上一首音乐 封面
+  
+  Map _next;  // 下一首音乐 封面
 
   void _toggleShowLyric () {}
+
+  double _rotation = 0; // 旋转角度
+
+  Future _rotationTimer = null;
 
   @override
   void initState() {
     super.initState();
     print(widget.music);
+
+    _startRotation();
+  }
+
+  void _startRotation() {
+    setState(() {
+      _rotation = _rotation==360? 1 : _rotation+1;
+    });
+    _rotationTimer = Future.delayed(Duration(milliseconds: 40), _startRotation);
   }
 
   Widget build(BuildContext context) {
@@ -35,20 +47,24 @@ class _AlbumCoverState extends State<AlbumCover> {
           // player disc
           Positioned(
             child: Container(
-              child: Transform(
+              child: Transform.rotate(
                 child: Container(
                   child: ClipOval(
-                    child: Image.network(widget.music['album']['coverImageUrl']),
+                    child: Image.network(
+                      widget.music['album']['coverImageUrl'], 
+                      width: 180,
+                      height: 180,
+                    ),
+
                   ),
-                  decoration: BoxDecoration(
+                  foregroundDecoration: BoxDecoration(
                     image: DecorationImage(
-                      image: ExactAssetImage('assets/player_disc.png'),
+                      image: AssetImage('assets/player_disc.png'),
                       fit: BoxFit.cover,
                     )
                   ),
                 ),
-                transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
-                alignment: Alignment.center,
+                angle: math.pi * _rotation / 180,
               ),
               // color: Colors.red,
               height: 261,

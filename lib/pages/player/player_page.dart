@@ -8,12 +8,19 @@ class PlayerPage extends StatefulWidget {
 
 class _PlayerPageState extends State<PlayerPage> {
 
-  final music = const {
-    'title': '好吗今天',
+  Map music = {
+    'title': '醉赤壁',
     'album': {
-      'coverImageUrl':  'http://p2.music.126.net/tNvWcu3P_7qia_Cep6S0aA==/109951164138999622.jpg?param=130y130',
-      'name': '好吗今天',
-    }
+      'coverImageUrl':  'http://p2.music.126.net/s6zFxvXe5kOxub4_x4rZhQ==/109951163052847567.jpg?param=180y180',
+      'name': '醉赤壁',
+    },
+    'artist': [
+      {
+        'name': '林俊杰',
+        'id': '123',
+        'imageUrl': 'http://p4.music.126.net/cnGpIQ6rQCKVrDyVVSpzeg==/3263350518850877.jpg?param=50y50'
+      }
+    ]
   };
 
   bool _isPlaying = false;
