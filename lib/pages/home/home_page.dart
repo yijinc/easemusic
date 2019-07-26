@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../service/music_service.dart';
+import '../../service/music_service.dart' show fetchPersonalized;
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,13 +15,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    fetchPersonalized().then((value) {
-      if(value==null) {
+    fetchPersonalized().then((response) {
+      if(response==null) {
         return;
       }
       // 将list 转为二维数组
       List list = [];
-      value.asMap().forEach((i, v){
+      response['result'].asMap().forEach((i, v){
         if(i%3==0) {
           list.add([]);
         }
@@ -206,6 +206,7 @@ class _HomePageState extends State<HomePage> {
         height: 150,
         margin: EdgeInsets.only(bottom: 10),
       ),
+      onTap: _navigatePlaylist(playList),
     );
   }
 
@@ -228,6 +229,12 @@ class _HomePageState extends State<HomePage> {
 
   void _navigateSearch () {
     print('go to search page');
+  }
+
+  _navigatePlaylist (Map params) {
+    return () {
+      Navigator.pushNamed(context, '/playlist', arguments: params);
+    };
   }
 
   // 录音
