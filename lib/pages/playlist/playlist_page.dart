@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 import '../../service/music_service.dart' show fetchPlaylist;
 
 class PlayListPage extends StatelessWidget {
