@@ -1,124 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import '../../service/music_service.dart' show fetchPlaylist;
 
 class PlayListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Welcome to Flutter',
-      theme: new ThemeData(
-        primaryColor: Colors.white,
-      ),
-      home: new RandomWords(),
-    );
-  }
-}
-
-class RandomWords extends StatefulWidget {
-  @override
-  createState() => new RandomWordsState();
-}
-
-class RandomWordsState extends State<RandomWords> {
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold (
-      appBar: new AppBar(
-        title: new Text('Startup Name Generator'),
-        actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.list), onPressed: _pushSaved),
-        ],
-      ),
-      body: _buildSuggestions(),
-    );
-  }
   
-  final _suggestions = <WordPair>[];
+  @override
+  Widget build(BuildContext context) {
+
+    final Map _playlistInfo = ModalRoute.of(context).settings.arguments;
+    print(_playlistInfo);
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text(_playlistInfo['name']),
+      ),
+      body: _PlayListView(playlistId: _playlistInfo['id']),
+    );
+  }
+}
+
+class _PlayListView extends StatefulWidget {
+  
+  _PlayListView({Key key, this.playlistId: 0}) : super(key: key);
+
+  final int playlistId ;
+
+  @override
+  createState() => new _PlayListViewState();
+}
+
+class _PlayListViewState extends State<_PlayListView> {
+
+  List _tracks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlaylist(widget.playlistId).then((response){
+      if(response==null) {
+        return;
+      }
+      setState(() {
+        _tracks = response['playlist']['tracks'];
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView.builder(
+      padding: const EdgeInsets.all(10),
+      // 对于每个 item 都会调用一次itemBuilder，然后将 item 添加到 ListTile 行中
+      itemBuilder: (context, index) {
+        return _buildRow(_tracks[index], index);
+      },
+      itemCount: _tracks.length,
+    );
+  }
 
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _sortFont = const TextStyle(fontSize: 16.0, color: Colors.grey);
+  final _smallFont = const TextStyle(fontSize: 15.0, color: Colors.grey);
 
-  final _saved = new Set<WordPair>();
-
-  Widget _buildRow(WordPair pair) {
-    final alreadySaved = _saved.contains(pair);
+  Widget _buildRow(Map music, index) {
+    List artists =  music['ar'];
     return new ListTile(
-      title: new Text(
-        pair.asPascalCase,
-        style: _biggerFont,
+      leading: Text(
+        (index+1).toString(),
+        style: _sortFont,
       ),
-      // 显示心形 ❤️ 图标
-      trailing: new Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
+      title: Column(
+        children: <Widget>[
+          Text(
+            music['name'],
+            style: _biggerFont,
+          ),
+          Text(
+            artists.map((artist) => artist['name']).join('-'),
+            style: _smallFont,
+          ),
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      trailing: Icon(
+        Icons.play_arrow,
       ),
       // toggle 收藏 / 删除
       onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else {
-            _saved.add(pair);
-          }
-        });
+        // 播放
       },
     );
   }
 
-  Widget _buildSuggestions() {
-    return new ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      // 对于每个建议的单词对都会调用一次itemBuilder，然后将单词对添加到ListTile行中
-      // 在偶数行，该函数会为单词对添加一个ListTile row.
-      // 在奇数行，该函数会添加一个分割线widget，来分隔相邻的词对。
-      // 注意，在小屏幕上，分割线看起来可能比较吃力。
-      itemBuilder: (context, i) {
-        // 在每一列之前，添加一个1像素高的分隔线widget
-        if (i.isOdd) return new Divider();
-
-        // 语法 "i ~/ 2" 表示i除以2，但返回值是整形（向下取整），比如i为：1, 2, 3, 4, 5
-        // 时，结果为0, 1, 1, 2, 2， 这可以计算出ListView中减去分隔线后的实际单词对数量
-        final index = i ~/ 2;
-        // 如果是建议列表中最后一个单词对
-        if (index >= _suggestions.length) {
-          // ...接着再生成10个单词对，然后添加到建议列表
-          _suggestions.addAll(generateWordPairs().take(10));
-        }
-        return _buildRow(_suggestions[index]);
-      }
-    );
-  }
-
-  void _pushSaved() {
-    // 路由 push
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          final tiles = _saved.map(
-            (pair) {
-              return new ListTile(
-                title: new Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
-            },
-          );
-          final divided = ListTile
-            .divideTiles(
-              context: context,
-              tiles: tiles,
-            )
-            .toList();
-
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('Saved Suggestions'),
-            ),
-            body: new ListView(children: divided),
-          );
-        },
-      ),
-    );
-  }
 }
