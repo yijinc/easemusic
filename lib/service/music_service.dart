@@ -1,21 +1,26 @@
 import 'dart:io';
 import 'dart:convert';
 
-final String baseURL = 'http://localhost:3000';
+// api 服务来自 https://github.com/Binaryify/NeteaseCloudMusicApi
+final String baseURL = 'http://192.168.60.68:3000';
 
-final Map error = const {
-  'error': '请求失败'
-};
+String _getQueryString(Map params) {
+  if(params==null) {
+    return '';
+  }
+  List<String> list = [];
+  params.forEach((k, v) {
+    list.add(k + '=' + v);
+  });
+  return list.join('&');
+}
 
 Future _get(String path, [Map params]) async {
-  String url = baseURL+path;
+  String url = baseURL + path;
   if(params!=null) {
-    url+='?';
-    params.forEach((k, v){
-      url+=  k + '=' + v+'&';
-    });
+    url += (url.indexOf('?')==-1 ? '?' : '') + _getQueryString(params);
   }
-  print(url);
+  print('GET: '+ url);
   try {
     //创建一个HttpClient
     HttpClient httpClient = new HttpClient();
@@ -23,22 +28,22 @@ Future _get(String path, [Map params]) async {
     HttpClientRequest request = await httpClient.getUrl(Uri.parse(url));
     //等待连接服务器（会将请求信息发送给服务器）
     var response = await request.close();
-    print(response);
     //关闭client后，通过该client发起的所有请求都会中止。
     httpClient.close();
-    if (response.statusCode == HttpStatus.OK) {
+    if (response.statusCode == 200) {
       var json = await response.transform(utf8.decoder).join();
       var data = jsonDecode(json);
       return data['result']; 
     }
-    return error;
+    print('请求失败 response.statusCode: '+ response.statusCode.toString());
+    return null;
   } catch (e) {
-    print(e);
-    return error;
+    print('请求失败 '+ e.toString());
+    return null;
   }
 }
 
-
+// 推荐歌单
 Future fetchPersonalized() async {
-  return await _get('/personalized', {'a': 'b'});
+  return await _get('/personalized');
 }
