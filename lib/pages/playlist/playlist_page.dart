@@ -93,8 +93,7 @@ class _PlayListViewState extends State<_PlayListView> {
   }
 
   void _playMusic (Map music) {
-    print('播放');
-    print(music);
+    Navigator.pushNamed(context, '/player', arguments: music);
   }
 
   _navigateMv() {

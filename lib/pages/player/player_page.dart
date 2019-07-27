@@ -1,35 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayer/audioplayer.dart';
 import 'albumCover.dart' show AlbumCover;
+import '../../service/music_service.dart' show fetchMusic;
 
-class PlayerPage extends StatefulWidget {
+AudioPlayer audioPlayer = new AudioPlayer();
+Map defaultMusic = { 'id': 0 };
+
+
+class PlayerPage extends StatelessWidget {
   @override
-  State<StatefulWidget> createState() => _PlayerPageState();
+  Widget build(BuildContext context) {
+    final Map _args = ModalRoute.of(context).settings.arguments;
+    return _PlayerView(music: _args);
+  }
 }
 
-class _PlayerPageState extends State<PlayerPage> {
+class _PlayerView extends StatefulWidget {
 
-  Map music = {
-    'title': '醉赤壁',
-    'album': {
-      'coverImageUrl':  'http://p2.music.126.net/s6zFxvXe5kOxub4_x4rZhQ==/109951163052847567.jpg?param=180y180',
-      'name': '醉赤壁',
-    },
-    'artist': [
-      {
-        'name': '林俊杰',
-        'id': '123',
-        'imageUrl': 'http://p4.music.126.net/cnGpIQ6rQCKVrDyVVSpzeg==/3263350518850877.jpg?param=50y50'
-      }
-    ]
-  };
+  _PlayerView({Key key, this.music}) : super(key: key);
+
+  final Map music;
+  
+  @override
+  State<StatefulWidget> createState() => _PlayerViewState();
+}
+
+class _PlayerViewState extends State<_PlayerView> {
+
+  Map _music = defaultMusic;
+
+  @override
+  void initState() {
+    print(widget.music);
+    super.initState();
+    if(widget.music!=null && _music['id']!=widget.music['id']) {
+      _music = widget.music;
+      fetchMusic(_music['id']).then((response){
+        _music['url'] = response['data'][0]['url'];
+        defaultMusic = _music;
+        _play();
+      });
+    }
+  }
 
   bool _isPlaying = false;
   bool _isFavorited = true;
 
   void _togglePlay() {
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
+    if(_isPlaying) {
+      _pause();
+    } else {
+      _play();
+    }
   }
 
   void _toggleFavorite() {
@@ -37,6 +59,30 @@ class _PlayerPageState extends State<PlayerPage> {
       _isFavorited = !_isFavorited;
     });
   }
+
+  final _positionSubscription = audioPlayer.onAudioPositionChanged.listen((positon) {
+    // 格式 0:00:00:00000
+  });
+
+  final _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((status) {
+    print('status');
+    print(status);
+    if (status == AudioPlayerState.PLAYING) {
+      // setState(() => duration = audioPlayer.duration);
+    } else if (status == AudioPlayerState.STOPPED) {
+      // onComplete();
+      // setState(() {
+      //   position = duration;
+      // });
+    }
+  }, onError: (msg) {
+    print(msg);
+    // setState(() {
+    //   playerState = PlayerState.stopped;
+    //   duration = new Duration(seconds: 0);
+    //   position = new Duration(seconds: 0);
+    // });
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +115,7 @@ class _PlayerPageState extends State<PlayerPage> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: AlbumCover(music: music)
+              child: AlbumCover(music: _music, isPlaying: _isPlaying)
             ),
             Container(
               child: Row(
@@ -103,6 +149,17 @@ class _PlayerPageState extends State<PlayerPage> {
       ),
     );
   }
+
+  Future<void> _play() async {
+    await audioPlayer.play(_music['url']);
+    setState(() => _isPlaying = true );
+  }
+
+  Future<void> _pause() async {
+    await audioPlayer.pause();
+    setState(() => _isPlaying = false );
+  }
+
 
   void _share () {
 

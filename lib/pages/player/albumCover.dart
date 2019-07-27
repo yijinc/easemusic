@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class AlbumCover extends StatefulWidget {
   
   final Map music;
+  final bool isPlaying;
 
-  const AlbumCover({Key key, @required this.music}) : super(key: key);
+  const AlbumCover({Key key, @required this.music, this.isPlaying}) : super(key: key);
 
   @override
   State createState() => _AlbumCoverState();
@@ -13,7 +15,7 @@ class AlbumCover extends StatefulWidget {
 
 class _AlbumCoverState extends State<AlbumCover> {
 
-  bool _isPlaying = false;
+  bool _inCurrentWidget = false;
 
   Map _previous;  // 上一首音乐 封面
   
@@ -23,21 +25,48 @@ class _AlbumCoverState extends State<AlbumCover> {
 
   double _rotation = 0; // 旋转角度
 
-  Future _rotationTimer = null;
+  Timer _timer = null;
 
   @override
   void initState() {
     super.initState();
-    print(widget.music);
+    _inCurrentWidget = true;
+    if(widget.isPlaying) {
+      _startRotation();
+    }
+  }
 
-    _startRotation();
+  @override
+  void dispose() {
+    super.dispose();
+    _inCurrentWidget = false;
+    _stopRotation();
+  }
+
+  @override
+  void didUpdateWidget(AlbumCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if(oldWidget.isPlaying!=widget.isPlaying) {
+      if(widget.isPlaying) {
+        _startRotation();
+      } else {
+        _stopRotation();
+      }
+    }
   }
 
   void _startRotation() {
     setState(() {
       _rotation = _rotation==360? 1 : _rotation+1;
     });
-    _rotationTimer = Future.delayed(Duration(milliseconds: 40), _startRotation);
+
+    _timer = Timer(Duration(milliseconds: 40), _startRotation);
+  }
+
+  void _stopRotation() {
+    if(_timer!=null) {
+      _timer.cancel();
+    }
   }
 
   Widget build(BuildContext context) {
@@ -51,7 +80,7 @@ class _AlbumCoverState extends State<AlbumCover> {
                 child: Container(
                   child: ClipOval(
                     child: Image.network(
-                      widget.music['album']['coverImageUrl'], 
+                      widget.music['al']['picUrl'] + '?param=180y180', 
                       width: 180,
                       height: 180,
                     ),
@@ -84,7 +113,7 @@ class _AlbumCoverState extends State<AlbumCover> {
                     child: Image.asset('assets/player_needle.png'),
                   ),
                   // pause: -30 playing: 0
-                  transform: Matrix4.identity()..rotateZ( 0 * 3.1415927 / 180),
+                  transform: Matrix4.identity()..rotateZ( (widget.isPlaying? 0 : -30) * math.pi / 180),
                   origin: Offset(15, 13),
                 ),
                 // color: Colors.white,

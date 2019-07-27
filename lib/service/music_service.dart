@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 // api 服务来自 https://github.com/Binaryify/NeteaseCloudMusicApi
-final String baseURL = 'http://192.168.0.103:3000';
+final String baseURL = 'http://192.168.0.102:3000';
 
 String _getQueryString(Map params) {
   if(params==null) {
@@ -47,7 +47,12 @@ Future fetchPersonalized() async {
   return await _get('/personalized');
 }
 
-// 推荐歌单
+// 歌单列表
 Future fetchPlaylist(int id) async {
   return await _get('/playlist/detail', {'id': id.toString()});
+}
+
+// 获取音乐 url
+Future fetchMusic(int musicId) async {
+  return await _get('/song/url', {'id': musicId.toString()});
 }
