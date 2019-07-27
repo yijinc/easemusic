@@ -47,7 +47,7 @@ class _PlayListViewState extends State<_PlayListView> {
   @override
   Widget build(BuildContext context) {
     return new ListView.builder(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       // 对于每个 item 都会调用一次itemBuilder，然后将 item 添加到 ListTile 行中
       itemBuilder: (context, index) {
         return _buildRow(_tracks[index], index);
@@ -56,39 +56,49 @@ class _PlayListViewState extends State<_PlayListView> {
     );
   }
 
-  final _biggerFont = const TextStyle(fontSize: 18.0);
   final _sortFont = const TextStyle(fontSize: 16.0, color: Colors.grey);
-  final _smallFont = const TextStyle(fontSize: 15.0, color: Colors.grey);
 
   Widget _buildRow(Map music, index) {
     List artists =  music['ar'];
     return new ListTile(
-      leading: Text(
-        (index+1).toString(),
-        style: _sortFont,
+      leading: Container(
+        child: Text(
+          (index+1).toString(),
+          style: _sortFont,
+        ),
+        width: 40,
+        alignment: Alignment.center,
       ),
-      title: Column(
-        children: <Widget>[
-          Text(
-            music['name'],
-            style: _biggerFont,
-          ),
-          Text(
-            artists.map((artist) => artist['name']).join('-'),
-            style: _smallFont,
-          ),
-        ],
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Text(
+        music['name'],
+        overflow: TextOverflow.ellipsis,
       ),
-      trailing: Icon(
-        Icons.play_arrow,
+      subtitle: Text(
+        artists.map((artist) => artist['name']).join('/') + ' - ' + music['al']['name'],
+        overflow: TextOverflow.ellipsis,
       ),
-      // toggle 收藏 / 删除
+      trailing: Container(
+        child: music['mv']==0? null : IconButton(
+          icon: Icon(Icons.videocam),
+          onPressed: _navigateMv
+        ),
+        width: 60,
+        alignment: Alignment.centerLeft,
+      ),
+      contentPadding: EdgeInsets.only(left: 10.0, right: 2.0),
       onTap: () {
-        // 播放
+        _playMusic(music);
       },
     );
+  }
+
+  void _playMusic (Map music) {
+    print('播放');
+    print(music);
+  }
+
+  _navigateMv() {
+    print('navigate mv page');
   }
 
 }
