@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
-        onTap: _navigateSearch,
+        onTap: () => _navigatePlaylistByTop(1),
       );
     } else {
       return new GestureDetector(
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
-        onTap: _navigateSearch,
+        onTap: () => _navigatePlaylistByTop(title=='新歌榜'? 0 : 2),
       );
     }
 
@@ -207,7 +207,9 @@ class _HomePageState extends State<HomePage> {
         height: 150,
         margin: EdgeInsets.only(bottom: 10),
       ),
-      onTap: _navigatePlaylist(playList),
+      onTap: () {
+        _navigatePlaylist(playList['id']);
+      },
     );
   }
 
@@ -232,7 +234,6 @@ class _HomePageState extends State<HomePage> {
           return;
         }
         storeMusicList = response['playlist']['tracks'];
-        print('storeMusicList 同构');
         Navigator.pushNamed(context, '/player');
       });
     } else {
@@ -244,10 +245,20 @@ class _HomePageState extends State<HomePage> {
     print('go to search page');
   }
 
-  _navigatePlaylist (Map params) {
-    return () {
-      Navigator.pushNamed(context, '/playlist', arguments: params);
-    };
+  Future _navigatePlaylist (id) async {
+    final Map response = await fetchPlaylist(id);
+    if(response==null) {
+      return;
+    }
+    Navigator.pushNamed(context, '/playlist', arguments: response);
+  }
+
+  Future _navigatePlaylistByTop (id) async {
+    final Map response = await fetchTop(id);
+    if(response==null) {
+      return;
+    }
+    Navigator.pushNamed(context, '/playlist', arguments: response);
   }
 
   // 录音

@@ -56,3 +56,15 @@ Future fetchPlaylist(int id) async {
 Future fetchMusic(int musicId) async {
   return await _get('/song/url', {'id': musicId.toString()});
 }
+
+/**
+ * 排行榜
+ * "0": 云音乐新歌榜,
+ * "1": 云音乐热歌榜,
+ * "2": 网易原创歌曲榜,
+ * "3": 云音乐飙升榜,
+ * "4": 云音乐电音榜, 
+ * */
+Future fetchTop(idx) async {
+  return await _get('/top/list', {'idx': idx.toString()});
+}
