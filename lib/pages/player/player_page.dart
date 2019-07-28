@@ -4,8 +4,12 @@ import 'albumCover.dart' show AlbumCover;
 import '../../service/music_service.dart' show fetchMusic;
 
 AudioPlayer audioPlayer = new AudioPlayer();
-Map defaultMusic = { 'id': 0 };
-bool defaultIsPlaying = false;
+
+List storeMusicList = [];
+Map storeMusic = { 'id': 0 };
+String storeUrl = '';
+bool storeIsPlaying = false;
+
 
 
 class PlayerPage extends StatelessWidget {
@@ -28,25 +32,27 @@ class _PlayerView extends StatefulWidget {
 
 class _PlayerViewState extends State<_PlayerView> {
   
-  Map _music = defaultMusic;
+  // init state
+  Map _music = storeMusic;
+  bool _isPlaying = storeIsPlaying;
+  bool _isFavorited = true;
 
   @override
   void initState() {
-    print(widget.music);
     super.initState();
+    if(storeMusicList.length==0) {
+      print('播放列表为空 - - ');
+      return;
+    }
     if(widget.music!=null && _music['id']!=widget.music['id']) {
-      _music = widget.music;
-      fetchMusic(_music['id']).then((response){
-        _music['url'] = response['data'][0]['url'];
-        defaultMusic = _music;
-        _play();
-      });
-    } else {
-      if(defaultIsPlaying) {
-        setState(() {
-          _isPlaying = true;
-        });
-      }
+      //播放选择传来的音乐
+      _setMusicAndUrl(widget.music);
+      return;
+    }
+    if(widget.music==null && _music['id']==0) {
+      // 默认播放列表第一首
+      _setMusicAndUrl(storeMusicList[0]);
+      return;
     }
 
 
@@ -61,11 +67,12 @@ class _PlayerViewState extends State<_PlayerView> {
         // });
       } else if (status == AudioPlayerState.STOPPED) {
         // onComplete();
-        if(_isPlaying==true) {
-          setState(() {
-            _isPlaying = false;
-          });
-        }
+        // if(_isPlaying==true) {
+        //   setState(() {
+        //     _isPlaying = false;
+        //   });
+        // }
+        _next();
       }
     }, onError: (msg) {
       print(msg);
@@ -80,11 +87,15 @@ class _PlayerViewState extends State<_PlayerView> {
   @override
   void dispose() {
     super.dispose();
-    defaultIsPlaying = _isPlaying;
+    storeIsPlaying = _isPlaying;
   }
 
-  bool _isPlaying = false;
-  bool _isFavorited = true;
+  Future<void> _setMusicAndUrl(m) async {
+    _music = storeMusic = m;
+    Map response = await fetchMusic(_music['id']);
+    storeUrl = response['data'][0]['url'];
+    _play();
+  }
 
   void _togglePlay() {
     if(_isPlaying) {
@@ -152,9 +163,9 @@ class _PlayerViewState extends State<_PlayerView> {
               child: Row(
                 children: <Widget>[
                   IconButton(color: Colors.white, icon: Icon(Icons.loop), onPressed: _share,),
-                  IconButton(color: Colors.white, icon: Icon(Icons.skip_previous), onPressed: _share,),
+                  IconButton(color: Colors.white, icon: Icon(Icons.skip_previous), onPressed: _previous,),
                   IconButton(color: Colors.white, icon: Icon(_isPlaying? Icons.pause_circle_outline : Icons.play_circle_outline), onPressed: _togglePlay, iconSize: 72,),
-                  IconButton(color: Colors.white, icon: Icon(Icons.skip_next), onPressed: _share,),
+                  IconButton(color: Colors.white, icon: Icon(Icons.skip_next), onPressed: _next,),
                   IconButton(color: Colors.white, icon: Icon(Icons.queue_music), onPressed: _share,),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,13 +180,33 @@ class _PlayerViewState extends State<_PlayerView> {
   }
 
   Future<void> _play() async {
-    await audioPlayer.play(_music['url']);
+    await audioPlayer.play(storeUrl);
     setState(() => _isPlaying = true );
   }
 
   Future<void> _pause() async {
     await audioPlayer.pause();
     setState(() => _isPlaying = false );
+  }
+
+  Future<void> _previous() async {
+    int index = storeMusicList.indexWhere((m)=>m['id']==_music['id']);
+    if(index==-1) {
+      await _setMusicAndUrl(storeMusicList[0]);
+    } else if(index==0) {
+      await _setMusicAndUrl(storeMusicList[storeMusicList.length-1]);
+    } else {
+      await _setMusicAndUrl(storeMusicList[index-1]);
+    }
+  }
+
+  Future<void> _next() async {
+    int index = storeMusicList.indexWhere((m)=>m['id']==_music['id']);
+    if(index==-1 || index >= storeMusicList.length-1) {
+      await _setMusicAndUrl(storeMusicList[0]);
+    } else {
+      await _setMusicAndUrl(storeMusicList[index+1]);
+    }
   }
 
 

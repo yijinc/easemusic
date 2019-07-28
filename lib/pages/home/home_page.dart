@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../service/music_service.dart' show fetchPersonalized;
+import '../../service/music_service.dart';
+import '../player/player_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -224,7 +225,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _navigatePlayer () {
-    Navigator.pushNamed(context, '/player');
+    if(storeMusicList.length==0 && storeMusic['id']==0) {
+      var c = _playLists[0][0];
+      fetchPlaylist(c['id']).then((response){
+        if(response==null) {
+          return;
+        }
+        storeMusicList = response['playlist']['tracks'];
+        print('storeMusicList 同构');
+        Navigator.pushNamed(context, '/player');
+      });
+    } else {
+      Navigator.pushNamed(context, '/player');
+    }
   }
 
   void _navigateSearch () {

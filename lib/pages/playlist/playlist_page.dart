@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../service/music_service.dart' show fetchPlaylist;
+import '../player/player_page.dart' show storeMusicList;
 
 class PlayListPage extends StatelessWidget {
   
@@ -39,7 +40,7 @@ class _PlayListViewState extends State<_PlayListView> {
         return;
       }
       setState(() {
-        _tracks = response['playlist']['tracks'];
+        storeMusicList = _tracks = response['playlist']['tracks'];
       });
     });
   }
