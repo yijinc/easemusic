@@ -15,8 +15,6 @@ class AlbumCover extends StatefulWidget {
 
 class _AlbumCoverState extends State<AlbumCover> {
 
-  bool _inCurrentWidget = false;
-
   Map _previous;  // 上一首音乐 封面
   
   Map _next;  // 下一首音乐 封面
@@ -30,7 +28,6 @@ class _AlbumCoverState extends State<AlbumCover> {
   @override
   void initState() {
     super.initState();
-    _inCurrentWidget = true;
     if(widget.isPlaying) {
       _startRotation();
     }
@@ -39,7 +36,6 @@ class _AlbumCoverState extends State<AlbumCover> {
   @override
   void dispose() {
     super.dispose();
-    _inCurrentWidget = false;
     _stopRotation();
   }
 

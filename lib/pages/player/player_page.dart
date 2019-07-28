@@ -5,6 +5,7 @@ import '../../service/music_service.dart' show fetchMusic;
 
 AudioPlayer audioPlayer = new AudioPlayer();
 Map defaultMusic = { 'id': 0 };
+bool defaultIsPlaying = false;
 
 
 class PlayerPage extends StatelessWidget {
@@ -26,7 +27,7 @@ class _PlayerView extends StatefulWidget {
 }
 
 class _PlayerViewState extends State<_PlayerView> {
-
+  
   Map _music = defaultMusic;
 
   @override
@@ -40,7 +41,46 @@ class _PlayerViewState extends State<_PlayerView> {
         defaultMusic = _music;
         _play();
       });
+    } else {
+      if(defaultIsPlaying) {
+        setState(() {
+          _isPlaying = true;
+        });
+      }
     }
+
+
+    final _positionSubscription = audioPlayer.onAudioPositionChanged.listen((positon) {
+      // 格式 0:00:00:00000
+    });
+
+    var _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((status) {
+      if (status == AudioPlayerState.PLAYING) {
+        // setState(() {
+        //   _isPlaying = true
+        // });
+      } else if (status == AudioPlayerState.STOPPED) {
+        // onComplete();
+        if(_isPlaying==true) {
+          setState(() {
+            _isPlaying = false;
+          });
+        }
+      }
+    }, onError: (msg) {
+      print(msg);
+      // setState(() {
+      //   playerState = PlayerState.stopped;
+      //   duration = new Duration(seconds: 0);
+      //   position = new Duration(seconds: 0);
+      // });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    defaultIsPlaying = _isPlaying;
   }
 
   bool _isPlaying = false;
@@ -60,32 +100,10 @@ class _PlayerViewState extends State<_PlayerView> {
     });
   }
 
-  final _positionSubscription = audioPlayer.onAudioPositionChanged.listen((positon) {
-    // 格式 0:00:00:00000
-  });
-
-  final _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((status) {
-    print('status');
-    print(status);
-    if (status == AudioPlayerState.PLAYING) {
-      // setState(() => duration = audioPlayer.duration);
-    } else if (status == AudioPlayerState.STOPPED) {
-      // onComplete();
-      // setState(() {
-      //   position = duration;
-      // });
-    }
-  }, onError: (msg) {
-    print(msg);
-    // setState(() {
-    //   playerState = PlayerState.stopped;
-    //   duration = new Duration(seconds: 0);
-    //   position = new Duration(seconds: 0);
-    // });
-  });
 
   @override
   Widget build(BuildContext context) {
+    List artists =  _music['ar'];
     return Scaffold (
       appBar: AppBar(
         title: Container(
@@ -93,13 +111,13 @@ class _PlayerViewState extends State<_PlayerView> {
             children: <Widget>[
               Center(
                 child: Text(
-                  '情非得已歌名',
+                  _music['name'],
                   style: TextStyle(fontSize: 16,),
                 ),
               ),
               Center(
                 child: Text(
-                  '作者',
+                  artists.map((artist) => artist['name']).join('/') + ' - ' + _music['al']['name'],
                   style: TextStyle(fontSize: 12,),
                 ),),
             ],
