@@ -2,15 +2,24 @@
 
 一个使用 Flutter 仿网易云音乐app 的跨平台项目
 
-## Getting Started
+## 开始
 
-This project is a starting point for a Flutter application.
+首先[安装flutter](https://flutter.dev/docs/get-started/install)
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+git clone
+flutter run 
+```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## 屏幕截图
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+android
+
+| ![main_playlist](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/android_home.jpg) | ![main_cloud](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/android_playlist.jpg) | ![main_cloud](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/android_player.jpg) |
+| :-: | :-: | :-: |
+
+
+ios
+
+| ![main_playlist](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/iso_home.jpg) | ![main_cloud](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/ios_playlist.jpg) | ![main_cloud](https://raw.githubusercontent.com/yijinc/easemusic/master/screenshots/ios_player.jpg) |
+| :-: | :-: | :-: |
