@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 // api 服务来自 https://github.com/Binaryify/NeteaseCloudMusicApi
-final String baseURL = 'http://192.168.0.102:3000';
+final String baseURL = 'http://45.63.0.144:3000';
 
 String _getQueryString(Map params) {
   if(params==null) {

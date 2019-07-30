@@ -35,11 +35,21 @@ class _PlayerViewState extends State<_PlayerView> {
   // init state
   Map _music = storeMusic;
   bool _isPlaying = storeIsPlaying;
-  bool _isFavorited = true;
+  bool _isFavorited = false;
+  int _currentPosition = 0; // 毫秒
+
+  var _positionSubscription;
+  var _audioPlayerStateSubscription;
 
   @override
   void initState() {
     super.initState();
+
+    // 
+    audioPlayer.onAudioPositionChanged.listen(onAudioPositionChanged);
+    audioPlayer.onPlayerStateChanged.listen(onPlayerStateChanged, onError: onPlayerStateChangedError);
+
+    // 
     if(storeMusicList.length==0) {
       print('播放列表为空 - - ');
       return;
@@ -55,33 +65,37 @@ class _PlayerViewState extends State<_PlayerView> {
       return;
     }
 
+  }
 
-    final _positionSubscription = audioPlayer.onAudioPositionChanged.listen((positon) {
-      // 格式 0:00:00:00000
-    });
+  onAudioPositionChanged (Duration position) {
+    setState(() => _currentPosition = position.inMilliseconds);
+  }
 
-    var _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((status) {
-      if (status == AudioPlayerState.PLAYING) {
-        // setState(() {
-        //   _isPlaying = true
-        // });
-      } else if (status == AudioPlayerState.STOPPED) {
-        // onComplete();
-        // if(_isPlaying==true) {
-        //   setState(() {
-        //     _isPlaying = false;
-        //   });
-        // }
-        _next();
-      }
-    }, onError: (msg) {
-      print(msg);
+  onPlayerStateChanged(status) {
+    print('status');
+    print(status);
+
+    if (status == AudioPlayerState.PLAYING) {
       // setState(() {
-      //   playerState = PlayerState.stopped;
-      //   duration = new Duration(seconds: 0);
-      //   position = new Duration(seconds: 0);
+      //   _isPlaying = true
       // });
-    });
+    } else if (status == AudioPlayerState.STOPPED) {
+      // onComplete();
+      // if(_isPlaying==true) {
+      //   setState(() {
+      //     _isPlaying = false;
+      //   });
+      // }
+      _next();
+    }
+  }
+  onPlayerStateChangedError(msg) {
+    print(msg);
+    // setState(() {
+    //   playerState = PlayerState.stopped;
+    //   duration = new Duration(seconds: 0);
+    //   position = new Duration(seconds: 0);
+    // });
   }
 
   @override
@@ -94,6 +108,11 @@ class _PlayerViewState extends State<_PlayerView> {
     _music = storeMusic = m;
     Map response = await fetchMusic(_music['id']);
     storeUrl = response['data'][0]['url'];
+    if(storeUrl==null) {
+      _next();
+      return;
+    }
+    print(storeUrl);
     _play();
   }
 
@@ -158,6 +177,8 @@ class _PlayerViewState extends State<_PlayerView> {
               ),
               padding: EdgeInsets.fromLTRB(30, 8, 30, 8),
             ),
+            
+            _buildTimeline(total: _music['dt'], current: _currentPosition, onChanged: _sliderChange),
             // player menu
             Container(
               child: Row(
@@ -209,6 +230,10 @@ class _PlayerViewState extends State<_PlayerView> {
     }
   }
 
+  _sliderChange(newRating) {
+    setState(() => _currentPosition = (newRating * _music['dt']).toInt());
+  }
+
 
   void _share () {
 
@@ -222,4 +247,52 @@ class _PlayerViewState extends State<_PlayerView> {
     print('切换歌词');
   }
 
+}
+
+
+
+
+
+Widget _buildTimeline({int current: 0, int total: 0, Function onChanged}) {
+
+  final int _secondTotal = total ~/ 1000;
+  
+  final int _secondCurrent = current ~/ 1000;
+  
+  final _styleFont = new TextStyle(fontSize: 10, color: Colors.white);
+
+  return Container(
+    child: Row(
+      children: <Widget>[
+        Container(
+          child: Text(
+            '${_secondCurrent~/60}:${_secondCurrent%60}',
+            style: _styleFont,
+          ),
+          width: 26,
+          alignment: Alignment.centerRight,
+        ),
+        Expanded(
+          child: Slider(
+            min: 0.0,
+            max: 1.0,
+            value: current/total,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            inactiveColor: Colors.grey,
+            label: 'sdls',
+          ),
+        ),
+        Container(
+            child: Text(
+            '${_secondTotal~/60}:${_secondTotal%60}',
+            style: _styleFont,
+          ),
+          width: 26,
+          alignment: Alignment.centerLeft,
+        ),
+      ],
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 12),
+  );
 }
