@@ -40,6 +40,7 @@ class _PlayerViewState extends State<_PlayerView> {
 
   var _positionSubscription;
   var _audioPlayerStateSubscription;
+  bool _isForbidden = false; // 🚫 操作限制
 
   @override
   void initState() {
@@ -68,10 +69,12 @@ class _PlayerViewState extends State<_PlayerView> {
   }
 
   onAudioPositionChanged (Duration position) {
-    setState(() => _currentPosition = position.inMilliseconds);
+    if(!_isForbidden) {
+      setState(() => _currentPosition = position.inMilliseconds);
+    }
   }
 
-  onPlayerStateChanged(status) {
+  Future onPlayerStateChanged(status) async {
     print('status');
     print(status);
 
@@ -79,14 +82,8 @@ class _PlayerViewState extends State<_PlayerView> {
       // setState(() {
       //   _isPlaying = true
       // });
-    } else if (status == AudioPlayerState.STOPPED) {
-      // onComplete();
-      // if(_isPlaying==true) {
-      //   setState(() {
-      //     _isPlaying = false;
-      //   });
-      // }
-      _next();
+    } else if (status == AudioPlayerState.COMPLETED) {
+      await _next();
     }
   }
   onPlayerStateChangedError(msg) {
@@ -101,19 +98,26 @@ class _PlayerViewState extends State<_PlayerView> {
   @override
   void dispose() {
     super.dispose();
+    _isForbidden = true;
     storeIsPlaying = _isPlaying;
   }
 
   Future<void> _setMusicAndUrl(m) async {
     _music = storeMusic = m;
+    setState(() {
+      _currentPosition = 0;
+      _music = storeMusic;
+    });
     Map response = await fetchMusic(_music['id']);
     storeUrl = response['data'][0]['url'];
     if(storeUrl==null) {
       _next();
       return;
     }
-    print(storeUrl);
-    _play();
+    if(audioPlayer.state == AudioPlayerState.PLAYING) {
+      await audioPlayer.stop();
+    }
+    await _play();
   }
 
   void _togglePlay() {
@@ -202,7 +206,11 @@ class _PlayerViewState extends State<_PlayerView> {
 
   Future<void> _play() async {
     await audioPlayer.play(storeUrl);
-    setState(() => _isPlaying = true );
+    print('------------------------');
+    print(_currentPosition);
+    if(!_isForbidden) {
+      setState(() => _isPlaying = true );
+    }
   }
 
   Future<void> _pause() async {
@@ -247,52 +255,54 @@ class _PlayerViewState extends State<_PlayerView> {
     print('切换歌词');
   }
 
-}
 
 
 
 
 
-Widget _buildTimeline({int current: 0, int total: 0, Function onChanged}) {
 
-  final int _secondTotal = total ~/ 1000;
-  
-  final int _secondCurrent = current ~/ 1000;
-  
-  final _styleFont = new TextStyle(fontSize: 10, color: Colors.white);
-
-  return Container(
-    child: Row(
-      children: <Widget>[
-        Container(
-          child: Text(
-            '${_secondCurrent~/60}:${_secondCurrent%60}',
-            style: _styleFont,
-          ),
-          width: 26,
-          alignment: Alignment.centerRight,
-        ),
-        Expanded(
-          child: Slider(
-            min: 0.0,
-            max: 1.0,
-            value: current/total,
-            onChanged: onChanged,
-            activeColor: Colors.white,
-            inactiveColor: Colors.grey,
-            label: 'sdls',
-          ),
-        ),
-        Container(
+  Widget _buildTimeline({int current: 0, int total: 0, Function onChanged}) {
+    final int _secondTotal = total ~/ 1000;
+    final int _secondCurrent = current ~/ 1000;
+    final _styleFont = new TextStyle(fontSize: 10, color: Colors.white);
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Container(
             child: Text(
-            '${_secondTotal~/60}:${_secondTotal%60}',
-            style: _styleFont,
+              '${_secondCurrent~/60}:${_secondCurrent%60}',
+              style: _styleFont,
+            ),
+            width: 26,
+            alignment: Alignment.centerRight,
           ),
-          width: 26,
-          alignment: Alignment.centerLeft,
-        ),
-      ],
-    ),
-    padding: EdgeInsets.symmetric(horizontal: 12),
-  );
+          Expanded(
+            child: Slider(
+              min: 0.0,
+              max: 1.0,
+              value: current/total,
+              onChanged: onChanged,
+              activeColor: Colors.white,
+              inactiveColor: Colors.grey,
+              label: 'sdls',
+              onChangeStart: (_) => _isForbidden = true,
+              onChangeEnd: (double rate) {
+                audioPlayer.seek(total * rate / 1000);
+                _isForbidden = false;
+              },
+            ),
+          ),
+          Container(
+              child: Text(
+              '${_secondTotal~/60}:${_secondTotal%60}',
+              style: _styleFont,
+            ),
+            width: 26,
+            alignment: Alignment.centerLeft,
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12),
+    );
+  }
 }
