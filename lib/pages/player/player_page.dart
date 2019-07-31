@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'albumCover.dart' show AlbumCover;
 import '../../service/music_service.dart' show fetchMusic;
+import 'package:easemusic/service/utils.dart';
 
 AudioPlayer audioPlayer = new AudioPlayer();
 
@@ -263,15 +264,13 @@ class _PlayerViewState extends State<_PlayerView> {
 
 
   Widget _buildTimeline({int current: 0, int total: 0, Function onChanged}) {
-    final int _secondTotal = total ~/ 1000;
-    final int _secondCurrent = current ~/ 1000;
     final _styleFont = new TextStyle(fontSize: 10, color: Colors.white);
     return Container(
       child: Row(
         children: <Widget>[
           Container(
             child: Text(
-              '${_secondCurrent~/60}:${_secondCurrent%60}',
+              formatTime(current ~/ 1000),
               style: _styleFont,
             ),
             width: 26,
@@ -295,7 +294,7 @@ class _PlayerViewState extends State<_PlayerView> {
           ),
           Container(
               child: Text(
-              '${_secondTotal~/60}:${_secondTotal%60}',
+              formatTime(total ~/ 1000),
               style: _styleFont,
             ),
             width: 26,
