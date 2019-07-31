@@ -206,8 +206,7 @@ class _PlayerViewState extends State<_PlayerView> {
 
   Future<void> _play() async {
     await audioPlayer.play(storeUrl);
-    print('------------------------');
-    print(_currentPosition);
+    _isForbidden = false;
     if(!_isForbidden) {
       setState(() => _isPlaying = true );
     }
@@ -219,6 +218,7 @@ class _PlayerViewState extends State<_PlayerView> {
   }
 
   Future<void> _previous() async {
+    _isForbidden = true;
     int index = storeMusicList.indexWhere((m)=>m['id']==_music['id']);
     if(index==-1) {
       await _setMusicAndUrl(storeMusicList[0]);
@@ -230,6 +230,7 @@ class _PlayerViewState extends State<_PlayerView> {
   }
 
   Future<void> _next() async {
+    _isForbidden = true;
     int index = storeMusicList.indexWhere((m)=>m['id']==_music['id']);
     if(index==-1 || index >= storeMusicList.length-1) {
       await _setMusicAndUrl(storeMusicList[0]);
